@@ -109,11 +109,18 @@ public class PersonFacadeTest
         test.put(person2.getId(),p2);
         String expected = gson.toJson(test.values());
         
-        
         String result = facade.getPersons();
         assertEquals(expected, result);
     }
 
+     @Test(expected = NotFoundException.class)
+    public void testGetNonExistingPerson() throws Exception
+    {
+       facade.getPerson(5);
+    }
+    
+    
+    
     /**
      * Test of editPerson method, of class PersonFacade.
      */

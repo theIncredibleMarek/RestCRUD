@@ -1,16 +1,22 @@
 package restcrud;
 
 import com.google.gson.Gson;
+import com.sun.corba.se.spi.ior.iiop.GIOPVersion;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import exceptions.NotFoundException;
+import facades.PersonFacade;
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import model.Person;
 
 /**
  * @author Lars
@@ -51,6 +57,8 @@ public class RestCRUD
     class HandlerPerson implements HttpHandler
     {
 
+        PersonFacade facade = new PersonFacade(true);
+
         @Override
         public void handle(HttpExchange he) throws IOException
         {
@@ -60,8 +68,34 @@ public class RestCRUD
             switch (method)
             {
                 case "GET":
+                    try
+                    {
+                        String path = he.getRequestURI().getPath();
+                        if (path.lastIndexOf("/") > 0)//person/id
+                        {
+                            int id = Integer.parseInt(path.substring(path.lastIndexOf("/") + 1));
+                            response = facade.getPerson(id);
+                        } else //person
+                        {
+                            response = facade.getPersons();
+                        }
+                    } catch (NumberFormatException nf)
+                    {
+                        response = "ID is not a number";
+                        status = 406;
+                    } catch (NotFoundException ex)
+                    {
+                        response = ex.getMessage();
+                        status = 404;
+                    }
                     break;
                 case "POST":
+                    InputStreamReader isr = new InputStreamReader(he.getRequestBody(), "utf-8");
+                    BufferedReader br = new BufferedReader(isr);
+                    String jsonQuery = br.readLine();
+                    Person p = facade.addPerson(jsonQuery);
+                    response = new Gson().toJson(p);
+
                     break;
                 case "PUT":
                     break;

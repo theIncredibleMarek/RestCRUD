@@ -23,7 +23,18 @@ public class PersonFacade implements IPersonFacade
     Map<Integer, Person> persons = new HashMap();
     private  int nextId = 0;
     private Gson gson = new Gson();
- 
+
+    public PersonFacade(boolean test)
+    {
+        addPerson(gson.toJson(new Person("AAA", "BBB", "CCC")));
+        addPerson(gson.toJson(new Person("BBB", "BBB", "CCC")));
+        
+    }
+
+    public PersonFacade()
+    {
+    }
+    
     @Override
     public Person addPerson(String json)
     {
@@ -55,7 +66,7 @@ public class PersonFacade implements IPersonFacade
     @Override
     public String getPersons()
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return gson.toJson(persons);
     }
 
     @Override
